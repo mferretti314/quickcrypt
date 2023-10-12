@@ -1,3 +1,7 @@
+import tkinter as tk
+
+name = "LFSR"
+
 description = """Linear-Feedback Shift Register (LFSR) is a cipher that uses repeated bit shifts and XORs to encrypt data. It's also used to generate random numbers.
 It isn't the most secure algorithm, but it's still difficult to break, especially for shorter messages without known plaintext.
 Notably, it is symmetrically reversible, which means you do the same operations to encrypt data as you do to decrypt it."""
@@ -17,7 +21,6 @@ def crypt(data, key, feedback):
         tempkey = shift(tempkey, feedback)
         
     return bytedata
-
 
 def shift(tempkey, feedback):
     for x in range(0,8):
@@ -41,3 +44,14 @@ def test():
         output = crypt(filedata, 0x12345678, 0x87654321)
         print(output)
         print(crypt(output, 0x12345678, 0x87654321))
+
+class LFSR_gui(tk.Frame):
+    def __init__(self, parent, controller):
+        tk.Frame.__init__(self, parent)
+        self.controller = controller
+        label = tk.Label(self, text=name, font=controller.title_font)
+        label.pack(side="top", fill="x", pady=10)
+        label = tk.Label(self, text=description)
+        label.pack(side="bottom", fill="x", pady=10)
+        button = tk.Button(self, text = "go back", command=lambda: controller.show_frame("StartPage"))
+        button.pack(side="left")
