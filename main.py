@@ -3,6 +3,8 @@ from tkinter import font as tkfont
 
 import sym_LFSR
 
+# this is the main driver for the window. don't touch this!
+# this is how you swap UI layouts without opening a new window
 class QuickCrypt(tk.Tk):
     def __init__(self, *args, **kwargs):
         tk.Tk.__init__(self, *args, **kwargs)
@@ -26,16 +28,24 @@ class QuickCrypt(tk.Tk):
         frame = self.frames[page_name]
         frame.tkraise()
 
+# this is basically a template class for a window setup, or "frame" as they're called in tk
+# shove your selector UI code in here
 class StartPage(tk.Frame):
+    # python constructor, executed on creation
     def __init__(self, parent, controller):
+        # initialize the tk frame stuff
         tk.Frame.__init__(self, parent)
         self.controller = controller
+
+        # your ui stuff goes here!
         label = tk.Label(self, text="start page", font=controller.title_font)
         label.pack(side="top", fill="x", pady=10)
-
+        
+        # the "command=" bit will open the frame from the class that matches the text in the string- see sym_LFSR.py
         button = tk.Button(self, text = "go to LFSR", command=lambda: controller.show_frame("LFSR_gui"))
         button.pack(side="bottom")
 
+# main function. you shouldn't need to touch this.
 if __name__ == "__main__":
     app = QuickCrypt()
     app.mainloop()
