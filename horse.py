@@ -9,7 +9,7 @@ class horse:
     def __init__(self):
         self.horse_key = 0x00000000
     
-    def get_description():
+    def get_description(self):
         return """Peter, the horse is here. https://www.youtube.com/watch?v=roi2cyto-yk
                   I will not be explaining my methods."""
     

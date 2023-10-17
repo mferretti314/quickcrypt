@@ -1,4 +1,5 @@
 import tkinter as tk
+from tkinter import *
 from tkinter import font as tkfont
 
 import sym_LFSR
@@ -38,15 +39,40 @@ class StartPage(tk.Frame):
         tk.Frame.__init__(self, parent)
         self.controller = controller
 
-        # your ui stuff goes here!
-        label = tk.Label(self, text="start page", font=controller.title_font)
+        #Title prompt
+        label = tk.Label(self, text="Select your cipher below:", font=controller.title_font)
         label.pack(side="top", fill="x", pady=10)
-        
-        # the "command=" bit will open the frame from the class that matches the text in the string- see sym_LFSR.py
-        button = tk.Button(self, text = "go to LFSR", command=lambda: controller.show_frame("LFSR_gui"))
-        button.pack(side="bottom")
-        horse_button = tk.Button(self, text = "horse", command=lambda: controller.show_frame("horse_gui"))
-        horse_button.pack(side="bottom")
+
+        #Spacing
+        spacer = tk.Label(self, text="")
+        spacer.pack()
+
+        #List of options to encrypt/decrypt
+        OPTIONS = ["AES(Symmetric)", "DES(Symmetric)", "LFSR(Symmetric)", "Rotational(Symmetric)", "RSA(Asymmetric)",
+                   "SHA-1(Hash)", "SHA-2(Hash)", "SHA-3(Hash)", "BLAKE2(Hash)", "MD5(Hash)", "Horse(Your Mom)"]
+
+        #Setup drop down menu
+        variable = StringVar(self)
+        variable.set(OPTIONS[0])
+        w = OptionMenu(self, variable, *OPTIONS)
+        w.pack()
+
+        #Spacing
+        spacer2 = tk.Label(self, text="")
+        spacer2.pack()
+
+        #Compares what has been selected to whats in the list to take users to there page they selected
+        def page_select():
+            if variable.get() == OPTIONS[2]:
+                controller.show_frame("LFSR_gui")
+            else:
+                controller.show_frame("horse_gui")
+
+        #Jumps to whatever page was selected
+        button_select = tk.Button(self, text="Select", command=page_select)
+        button_select.pack()
+
+        #the "command=" bit will open the frame from the class that matches the text in the string- see sym_LFSR.py
 
 # main function. you shouldn't need to touch this.
 if __name__ == "__main__":

@@ -8,7 +8,7 @@ class asym_RSA():
         self.data = "data"
 
     # returns a string that describes the algorithm.
-    def getDescription():
+    def getDescription(self):
         return """An asymmetric encryption algorithm. This implementation is RSA PKCS#1 OAEP (Optimal Asymmetric Encryption Padding). 
     The RSA algorithm is used to generate and share a private key, which is then used to encrypt data via AES.
     Requires the reciever's public_key (file or text), and your own private_key (file or text). 
@@ -23,9 +23,9 @@ class asym_RSA():
         return (self.publicKey, self.privateKey)
     
     # Called when the user hits the "load private key" button
-    def loadSender():
+    def loadSender(self):
         print("Stub method for loading key")
 
     # Called when the user hits the "load public key" button
-    def loadReciever():
+    def loadReciever(self):
         print("Stub method for loading key")
