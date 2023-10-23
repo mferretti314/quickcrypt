@@ -1,5 +1,7 @@
 import tkinter as tk
+import codecs
 from tkinter import messagebox
+from tkinter import filedialog
 
 name = "LFSR"
 
@@ -58,6 +60,7 @@ class LFSR_gui(tk.Frame):
         self.keyinfo = "8 hexadecimal digits, eg 0x1234ABCD"
         self.feedback = 0x00000000
         self.feedbackinfo = "8 hexadecimal digits, eg 0xF1E2D3C4"
+        self.usingfile = False
 
         self.input = ""
         self.inputinfo = """Type text here, or select "Open" to choose an input file."""
@@ -68,69 +71,87 @@ class LFSR_gui(tk.Frame):
         tk.Frame.__init__(self, parent)
         self.controller = controller
         # your stuff goes here
-        titlelabel = tk.Label(self, text=name, font=controller.title_font)
+        self.titlelabel = tk.Label(self, text=name, font=controller.title_font)
 
-        keybox = tk.Entry(self)
-        keylabel = tk.Label(self, text="Key")
+        self.keybox = tk.Entry(self)
+        self.keybox.insert(tk.INSERT, hex(self.key))
+        self.keylabel = tk.Label(self, text="Key")
         # feedback is only needed for LFSR
-        feedbackbox = tk.Entry(self)
-        feedbacklabel = tk.Label(self, text="Feedback")
+        self.feedbackbox = tk.Entry(self)
+        self.feedbackbox.insert(tk.INSERT, hex(self.feedback))
+        self.feedbacklabel = tk.Label(self, text="Feedback")
 
-        descriptionlabel = tk.Label(self, text=description, justify="left")
+        self.descriptionlabel = tk.Label(self, text=description, justify="left")
 
-        inputbox = tk.Text(self, height=5, width=100)
-        inputlabel = tk.Label(self, text="Input")
-        outputbox = tk.Text(self, height=5, width=100)
-        outputlabel = tk.Label(self, text="Output")
+        self.inputbox = tk.Text(self, height=5, width=100)
+        self.inputlabel = tk.Label(self, text="Input")
+        self.outputbox = tk.Text(self, height=5, width=100)
+        self.outputlabel = tk.Label(self, text="Output")
 
-        openbutton = tk.Button(self, text="Open", command = self.clickedOpen)
-        savebutton = tk.Button(self, text="Save", command = self.clickedSave)
-        clearbutton = tk.Button(self, text="Clear Fields", command = self.clickedClear)
-        encryptbutton = tk.Button(self, text="Encrypt/Decrypt", command = self.clickedEncrypt)
+        self.openbutton = tk.Button(self, text="Open", command = self.clickedOpen)
+        self.savebutton = tk.Button(self, text="Save", command = self.clickedSave)
+        self.clearbutton = tk.Button(self, text="Clear Fields", command = self.clickedClear)
+        self.encryptbutton = tk.Button(self, text="Encrypt/Decrypt", command = self.clickedEncrypt)
         # this uses a lambda because it has an argument
         # idk this is just what stackoverflow did
-        backbutton = tk.Button(self, text="Back", command=lambda: controller.show_frame("StartPage"))
+        self.backbutton = tk.Button(self, text="Back", command=lambda: controller.show_frame("StartPage"))
         
-        backbutton.grid(column = 0, row = 0)
-        titlelabel.grid(column = 1, row = 0, columnspan=2)
+        self.backbutton.grid(column = 0, row = 0)
+        self.titlelabel.grid(column = 1, row = 0, columnspan=2)
 
-        keylabel.grid(column = 0, row = 1)
-        keybox.grid(column=1, row=1)
-        feedbacklabel.grid(column=0, row=2)
-        feedbackbox.grid(column=1, row=2)
+        self.keylabel.grid(column = 0, row = 1)
+        self.keybox.grid(column=1, row=1)
+        self.feedbacklabel.grid(column=0, row=2)
+        self.feedbackbox.grid(column=1, row=2)
 
-        descriptionlabel.grid(column=2, row=1, rowspan=2)
+        self.descriptionlabel.grid(column=2, row=1, rowspan=2)
         
-        openbutton.grid(column=0, row=3)
-        inputbox.grid(column=1, row=3, columnspan=2, rowspan=2)
-        inputlabel.grid(column=0, row=4)
+        self.openbutton.grid(column=0, row=3)
+        self.inputbox.grid(column=1, row=3, columnspan=2, rowspan=2)
+        self.inputlabel.grid(column=0, row=4)
 
-        savebutton.grid(column=0, row=5)
-        outputbox.grid(column=1, row=5, columnspan=2, rowspan=2)
-        outputlabel.grid(column=0, row=6)
+        self.savebutton.grid(column=0, row=5)
+        self.outputbox.grid(column=1, row=5, columnspan=2, rowspan=2)
+        self.outputlabel.grid(column=0, row=6)
 
-        clearbutton.grid(column=1, row=7)
-        encryptbutton.grid(column=2, row=7)
+        self.clearbutton.grid(column=1, row=7)
+        self.encryptbutton.grid(column=2, row=7)
 
     def clickedEncrypt(self):
-        if self.key == 0x00000000:
-            messagebox.showerror(title="Error", message="No key set!")
-            return
-        if self.feedback == 0x00000000:
-            messagebox.showerror(title="Error", message="No feedback set!")
-            return
-        
-        byteinput = bytearray(self.input)
-        self.output = crypt(byteinput, self.key, self.feedback)
-        # TODO: put output in display box
+        self.key = int(self.keybox.get(), 16)
+        self.feedback = int(self.feedbackbox.get(), 16)
+        if not self.usingfile:
+            self.input = self.inputbox.get(1.0, tk.END)
+            self.input = codecs.escape_decode(self.input.encode('utf-8'))[0].decode("utf-8")
+        self.output = crypt(self.input, self.key, self.feedback)
+        self.outputbox.delete(1.0, tk.END)
+        self.outputbox.insert(1.0, str(self.output)[12:-2])
         return
     
     def clickedClear(self):
         # TODO: clear key/feedback/input/output
+        self.keybox.delete(0, tk.END)
+        self.feedbackbox.delete(0, tk.END)
+        # the text box widgets have a slightly different clearing method than the one-line entry widgets
+        self.inputbox.delete(1.0, tk.END)
+        self.outputbox.delete(1.0, tk.END)
+        self.usingfile = False
         return
     
     def clickedOpen(self):
-        # TODO: open file selection dialogue
+        filename = filedialog.askopenfilename(
+            initialdir = "/",
+            title = "Select input file",
+            filetypes = (("Text files","*.txt*"),("all files", "*.*"))
+        )
+        if filename == None:
+            return
+        self.inputbox.delete('1.0', tk.END)
+        self.inputbox.insert('1.0', filename)
+        file = open(filename)
+        self.input = file.read()
+        file.close()
+        self.usingfile = True
         return
     
     def clickedSave(self):

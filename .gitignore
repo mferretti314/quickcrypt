@@ -1,2 +1,4 @@
 
 *.pyc
+*.pyc
+__pycache__/sym_LFSR.cpython-310.pyc
