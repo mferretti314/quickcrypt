@@ -142,10 +142,11 @@ class LFSR_gui(tk.Frame):
         self.keybox.delete(0, tk.END)
         self.feedbackbox.delete(0, tk.END)
         # the text box widgets have a slightly different clearing method than the one-line entry widgets
+        self.inputbox.config(state="normal")
         self.inputbox.delete(1.0, tk.END)
         self.outputbox.delete(1.0, tk.END)
         self.usefileinput = False
-        self.inputbox.config(state="normal")
+        
         return
     
     def clickedOpen(self):
