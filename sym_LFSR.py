@@ -6,7 +6,7 @@ from tkinter import filedialog
 name = "LFSR"
 
 description = """A Linear-Feedback Shift Register (LFSR) uses repeated bit shifts and XORs to encrypt data.
-Security: Medium. Not incredibly cryptographically secure, but it's tricky to break in practice.
+Medium security. Not incredibly cryptographically secure, but it's tricky to break in practice.
 This is a symmetric cipher- both parties need the same key and feedback, and they must be shared securely.
 Cannot be easily decrypted without either the key or the feedback value."""
 
@@ -60,7 +60,7 @@ class LFSR_gui(tk.Frame):
         self.keyinfo = "8 hexadecimal digits, eg 0x1234ABCD"
         self.feedback = 0x00000000
         self.feedbackinfo = "8 hexadecimal digits, eg 0xF1E2D3C4"
-        self.usingfile = False
+        self.usefileinput = False
 
         self.input = ""
         self.inputinfo = """Type text here, or select "Open" to choose an input file."""
@@ -118,11 +118,20 @@ class LFSR_gui(tk.Frame):
         self.encryptbutton.grid(column=2, row=7)
 
     def clickedEncrypt(self):
-        self.key = int(self.keybox.get(), 16)
-        self.feedback = int(self.feedbackbox.get(), 16)
-        if not self.usingfile:
+        try:
+            self.key = int(self.keybox.get(), 16)
+        except:
+            messagebox.showerror(title="Key Error", message="Could not convert " + self.keybox.get() + " to hexadecimal. Please use a format like 0x1234ABCD.")
+        
+        try:
+            self.feedback = int(self.feedbackbox.get(), 16)
+        except:
+            messagebox.showerror(title="Feedback Error", message="Could not convert " + self.feedbackbox.get() + " to hexadecimal. Please use a format like 0x1234ABCD.")
+
+        if not self.usefileinput:
             self.input = self.inputbox.get(1.0, tk.END)
             self.input = codecs.escape_decode(self.input.encode('utf-8'))[0].decode("utf-8")
+
         self.output = crypt(self.input, self.key, self.feedback)
         self.outputbox.delete(1.0, tk.END)
         self.outputbox.insert(1.0, str(self.output)[12:-2])
@@ -135,25 +144,28 @@ class LFSR_gui(tk.Frame):
         # the text box widgets have a slightly different clearing method than the one-line entry widgets
         self.inputbox.delete(1.0, tk.END)
         self.outputbox.delete(1.0, tk.END)
-        self.usingfile = False
+        self.usefileinput = False
+        self.inputbox.config(state="normal")
         return
     
     def clickedOpen(self):
         filename = filedialog.askopenfilename(
-            initialdir = "/",
-            title = "Select input file",
             filetypes = (("Text files","*.txt*"),("all files", "*.*"))
         )
         if filename == None:
             return
         self.inputbox.delete('1.0', tk.END)
-        self.inputbox.insert('1.0', filename)
-        file = open(filename)
+        self.inputbox.insert('1.0', filename + "\n\nIn file mode. Press \"Clear Fields\" to return to normal text entry mode.")
+        file = open(filename, 'rb')
         self.input = file.read()
         file.close()
-        self.usingfile = True
+        self.usefileinput = True
+        self.inputbox.config(state="disabled")
         return
     
     def clickedSave(self):
         # TODO: open file save dialogue
+        file = filedialog.asksaveasfile(mode='wb')
+        file.write(self.output)
+        file.close()
         return
