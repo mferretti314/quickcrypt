@@ -57,15 +57,11 @@ class LFSR_gui(tk.Frame):
         # class variables that will be used later
         self.data = bytearray()
         self.key = 0x00000000
-        self.keyinfo = "8 hexadecimal digits, eg 0x1234ABCD"
         self.feedback = 0x00000000
-        self.feedbackinfo = "8 hexadecimal digits, eg 0xF1E2D3C4"
         self.usefileinput = False
 
         self.input = ""
-        self.inputinfo = """Type text here, or select "Open" to choose an input file."""
         self.output = ""
-        self.outputinfo = """Click "Save" to save this output to a file."""
 
         # gui setup- these first two lines are required
         tk.Frame.__init__(self, parent)
@@ -118,6 +114,7 @@ class LFSR_gui(tk.Frame):
         self.encryptbutton.grid(column=2, row=7)
 
     def clickedEncrypt(self):
+        # checking the text -> int conversion for key/feedback
         try:
             self.key = int(self.keybox.get(), 16)
         except:
@@ -127,12 +124,17 @@ class LFSR_gui(tk.Frame):
             self.feedback = int(self.feedbackbox.get(), 16)
         except:
             messagebox.showerror(title="Feedback Error", message="Could not convert " + self.feedbackbox.get() + " to hexadecimal. Please use a format like 0x1234ABCD.")
-
+        
+        # converts an escape sequence entry (like "\x01\x02text\xff") to an array of bytes
+        # we only need to update the input bytes if we're not using a file
+        # since the file input code already updates it
         if not self.usefileinput:
             self.input = self.inputbox.get(1.0, tk.END)
-            self.input = codecs.escape_decode(self.input.encode('utf-8'))[0].decode("utf-8")
+            self.input = bytearray(codecs.escape_decode(self.input)[0])
 
         self.output = crypt(self.input, self.key, self.feedback)
+        # clear and write output to the display box
+        # would normally display as "bytearray(stuff)" so the [12:-2] chops the extra stuff off
         self.outputbox.delete(1.0, tk.END)
         self.outputbox.insert(1.0, str(self.output)[12:-2])
         return
@@ -142,6 +144,7 @@ class LFSR_gui(tk.Frame):
         self.keybox.delete(0, tk.END)
         self.feedbackbox.delete(0, tk.END)
         # the text box widgets have a slightly different clearing method than the one-line entry widgets
+        # gotta re-enable it first because disabled state applies to everything, not just user typing
         self.inputbox.config(state="normal")
         self.inputbox.delete(1.0, tk.END)
         self.outputbox.delete(1.0, tk.END)
@@ -161,6 +164,7 @@ class LFSR_gui(tk.Frame):
         self.input = file.read()
         file.close()
         self.usefileinput = True
+        # prevents typing in the box
         self.inputbox.config(state="disabled")
         return
     
