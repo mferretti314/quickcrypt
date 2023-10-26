@@ -2,7 +2,7 @@ import tkinter as tk
 from tkinter import *
 from tkinter import font as tkfont
 
-import sym_LFSR
+import sym_LFSR, asym_RSA
 import horse
 
 # this is the main driver for the window. don't touch this!
@@ -18,7 +18,7 @@ class QuickCrypt(tk.Tk):
         container.grid_columnconfigure(0, weight=1)
 
         self.frames = {}
-        for F in (StartPage, sym_LFSR.LFSR_gui, horse.horse_gui):
+        for F in (StartPage, sym_LFSR.LFSR_gui, horse.horse_gui, asym_RSA.RSA_gui):
             page_name = F.__name__
             frame = F(parent=container, controller=self)
             self.frames[page_name] = frame
@@ -27,9 +27,10 @@ class QuickCrypt(tk.Tk):
         self.show_frame("StartPage")
     
     def show_frame(self, page_name):
+        self.geometry("")
         frame = self.frames[page_name]
         frame.tkraise()
-
+        
 # this is basically a template class for a window setup, or "frame" as they're called in tk
 # shove your selector UI code in here
 class StartPage(tk.Frame):
@@ -48,14 +49,25 @@ class StartPage(tk.Frame):
         spacer.pack()
 
         #List of options to encrypt/decrypt
-        OPTIONS = ["AES(Symmetric)", "DES(Symmetric)", "LFSR(Symmetric)", "Rotational(Symmetric)", "RSA(Asymmetric)",
-                   "SHA-1(Hash)", "SHA-2(Hash)", "SHA-3(Hash)", "BLAKE2(Hash)", "MD5(Hash)", "Horse(Your Mom)"]
-
+        OPTIONS_DICT = {
+            "AES (Symmetric)":"AES_gui",
+            "DES (Symmetric)":"DES_gui",
+            "LFSR (Symmetric)":"LFSR_gui",
+            "Rotational (Symmetric)":"ROT_gui",
+            "RSA (Asymmetric)":"RSA_gui",
+            "SHA-1 (Hash)":"SHA1_gui",
+            "SHA-2 (Hash)":"SHA2_gui",
+            "SHA-3 (Hash)":"SHA3_gui",
+            "BLAKE2 (Hash)":"BLAKE2_gui",
+            "MD5 (Hash)":"MD5_gui",
+            "horse (horse)":"horse_gui"
+        }
+        opts = list(OPTIONS_DICT.keys())
         #Setup drop down menu
         variable = StringVar(self)
-        variable.set(OPTIONS[0])
-        w = OptionMenu(self, variable, *OPTIONS)
-        w.pack()
+        variable.set(opts[0])
+        self.w = OptionMenu(self, variable, *opts)
+        self.w.pack()
 
         #Spacing
         spacer2 = tk.Label(self, text="")
@@ -63,10 +75,7 @@ class StartPage(tk.Frame):
 
         #Compares what has been selected to whats in the list to take users to there page they selected
         def page_select():
-            if variable.get() == OPTIONS[2]:
-                controller.show_frame("LFSR_gui")
-            else:
-                controller.show_frame("horse_gui")
+            controller.show_frame(OPTIONS_DICT[variable.get()])
 
         #Jumps to whatever page was selected
         button_select = tk.Button(self, text="Select", command=page_select)

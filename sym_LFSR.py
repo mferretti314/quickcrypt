@@ -77,7 +77,7 @@ class LFSR_gui(tk.Frame):
         self.feedbackbox.insert(tk.INSERT, hex(self.feedback))
         self.feedbacklabel = tk.Label(self, text="Feedback")
 
-        self.descriptionlabel = tk.Label(self, text=description, justify="left")
+        self.descriptionlabel = tk.Label(self, text=description, justify="left", borderwidth=3, relief="sunken", pady=3)
 
         self.inputbox = tk.Text(self, height=5, width=100)
         self.inputlabel = tk.Label(self, text="Input")
@@ -100,18 +100,18 @@ class LFSR_gui(tk.Frame):
         self.feedbacklabel.grid(column=0, row=2)
         self.feedbackbox.grid(column=1, row=2)
 
-        self.descriptionlabel.grid(column=2, row=1, rowspan=2)
+        self.descriptionlabel.grid(column=2, row=1, rowspan=2, pady=3, sticky='nsew')
         
-        self.openbutton.grid(column=0, row=3)
-        self.inputbox.grid(column=1, row=3, columnspan=2, rowspan=2)
-        self.inputlabel.grid(column=0, row=4)
+        self.openbutton.grid(column=0, row=4)
+        self.inputbox.grid(column=1, row=3, columnspan=2, rowspan=2, sticky='nsew', padx=3, pady=3)
+        self.inputlabel.grid(column=0, row=3)
 
-        self.savebutton.grid(column=0, row=5)
-        self.outputbox.grid(column=1, row=5, columnspan=2, rowspan=2)
-        self.outputlabel.grid(column=0, row=6)
+        self.savebutton.grid(column=0, row=6)
+        self.outputbox.grid(column=1, row=5, columnspan=2, rowspan=2, sticky='nsew', padx=3, pady=3)
+        self.outputlabel.grid(column=0, row=5)
 
-        self.clearbutton.grid(column=1, row=7)
-        self.encryptbutton.grid(column=2, row=7)
+        self.clearbutton.grid(column=1, row=7, pady=5)
+        self.encryptbutton.grid(column=2, row=7, pady=5)
 
     def clickedEncrypt(self):
         # checking the text -> int conversion for key/feedback
