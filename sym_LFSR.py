@@ -11,6 +11,7 @@ This is a symmetric cipher- both parties need the same key and feedback, and the
 Cannot be easily decrypted without either the key or the feedback value."""
 
 def crypt(data, key, feedback):
+    data = data[:-1]
     tempkey = key
     shift(tempkey, feedback)
     bytedata = bytearray()
