@@ -7,9 +7,10 @@ from Crypto.Cipher import AES
 name = "AES"
 
 description = """The Advanced Encryption Standard (AES) is a symmetric block cipher chosen by the U.S. 
-government to protect classified information. AES is implemented in software and hardware 
-throughout the world to encrypt sensitive data. AES is a variant of Rijndael, with a fixed 
-block size of 128 bits, and a key size of 128, 192, or 256 bits."""
+government to protect classified information. It is effectively unbreakable, and uses a key length of 
+128, 196, or 256 bits. "Nonce" is automatically-generated random bytes that are used for decryption.
+Decrypting an AES-encrypted message requires both the key and the nonce value. The key must
+be sent securely, but the nonce can be sent over an unsecure channel along with the encrypted text."""
 
 # this defines the UI for the cipher
 # when I'm done with it you should be able to copy and paste it without a ton of reconfiguring
