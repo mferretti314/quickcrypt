@@ -86,12 +86,16 @@ class AES_gui(tk.Frame):
         # converts an escape sequence entry (like "\x01\x02text\xff") to an array of bytes
         # we only need to update the input bytes if we're not using a file
         # since the file input code already updates it
-        self.input = self.inputbox.get(1.0, tk.END)
+        data = ''
+        if not self.usefileinput:
+            self.input = self.inputbox.get(1.0, tk.END)
 
-        data = self.input
-        data = data[:-1]
-        data = data.encode()
-        data = data.decode('unicode_escape').encode("raw_unicode_escape")
+            data = self.input
+            data = data[:-1]
+            data = data.encode()
+            data = data.decode('unicode_escape').encode("raw_unicode_escape")
+        else:
+            data = self.input
 
         key = self.keybox.get()
         key = bytes(str(key), 'utf-8')
@@ -119,12 +123,15 @@ class AES_gui(tk.Frame):
         # converts an escape sequence entry (like "\x01\x02text\xff") to an array of bytes
         # we only need to update the input bytes if we're not using a file
         # since the file input code already updates it
-        self.input = self.inputbox.get(1.0, tk.END)
-
-        data = self.input
-        data = data[:-1]
-        data = data.encode()
-        data = data.decode('unicode_escape').encode("raw_unicode_escape")
+        data = ''
+        if not self.usefileinput:
+            self.input = self.inputbox.get(1.0, tk.END)
+            data = self.input
+            data = data[:-1]
+            data = data.encode()
+            data = data.decode('unicode_escape').encode("raw_unicode_escape")
+        else:
+            data = self.input
 
         key = self.keybox.get()
         key = bytes(str(key), 'utf-8')

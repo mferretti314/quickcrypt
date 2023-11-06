@@ -11,7 +11,7 @@ This is a symmetric cipher- both parties need the same key and feedback, and the
 Cannot be easily decrypted without either the key or the feedback value."""
 
 def crypt(data, key, feedback):
-    data = data[:-1]
+    #data = data[:-1]
     tempkey = key
     shift(tempkey, feedback)
     bytedata = bytearray()
@@ -37,18 +37,6 @@ def minishift(tempkey, feedback):
         return (tempkey >> 1)
     else:
         return (tempkey >> 1) ^ feedback
-        
-def test():
-    output = crypt('encrypt me', 0x12345678, 0x87654321)
-    print(output)
-    reverse = crypt(output, 0x12345678, 0x87654321)
-    print(reverse)
-    print(" ")
-    with open('encrypt_me.txt',mode='rb') as file:
-        filedata = bytearray(file.read())
-        output = crypt(filedata, 0x12345678, 0x87654321)
-        print(output)
-        print(crypt(output, 0x12345678, 0x87654321))
 
 # this defines the UI for the cipher
 # when I'm done with it you should be able to copy and paste it without a ton of reconfiguring
