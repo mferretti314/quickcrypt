@@ -2,7 +2,7 @@ import tkinter as tk
 from tkinter import *
 from tkinter import font as tkfont
 
-import sym_LFSR, asym_RSA, sym_AES, sym_ROT
+import sym_LFSR, asym_RSA, sym_AES, sym_ROT, hash_blake2b
 import horse
 
 # this is the main driver for the window. don't touch this!
@@ -18,7 +18,7 @@ class QuickCrypt(tk.Tk):
         container.grid_columnconfigure(0, weight=1)
 
         self.frames = {}
-        for F in (StartPage, sym_LFSR.LFSR_gui, horse.horse_gui, asym_RSA.RSA_gui, sym_AES.AES_gui, sym_ROT.ROT_gui):
+        for F in (StartPage, sym_LFSR.LFSR_gui, horse.horse_gui, asym_RSA.RSA_gui, sym_AES.AES_gui, sym_ROT.ROT_gui, hash_blake2b.BLAKE2_gui):
             page_name = F.__name__
             frame = F(parent=container, controller=self)
             self.frames[page_name] = frame

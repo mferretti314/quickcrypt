@@ -1,51 +1,20 @@
-import random
-import sys
-import uuid
 import tkinter as tk
+import codecs
 from tkinter import messagebox
-from PIL import ImageTk, Image
 from tkinter import filedialog
+from Crypto.Hash import BLAKE2b
 
-name = "horse"
-description = """horse"""
+name = "BLAKE2b"
 
-class horse:
-    def __init__(self):
-        self.horse_key = random.randint(0, 50000)
+description = """Le Blake2B"""
 
-    def get_description(self):
-        return """Peter, the horse is here. https://www.youtube.com/watch?v=roi2cyto-yk
-                  I will not be explaining my methods."""
-    
-    def set_key(self, key):
-        self.horse_key = key
-
-    def get_key(self):
-        return self.horse_key
-
-    def horse_crypt(self, data):
-        horse_output = ""
-        data = list(data)
-        for char in data:
-            horse_output += ''.join(['\U0001F40E' if x == "1" else u'\u2800' for x in str(bin(char + self.horse_key))[2:]]) + '\n'
-        return horse_output
-
-    def horse_decrypt(self, data):
-        horse_output = ""
-        data = data.decode().split('\n')
-        loc_key = int(self.horse_key)
-        while ('' in data):
-            data.remove('')
-        for line in data:
-            horse_output += chr(int(''.join(['1' if x == '\U0001F40E' else '0' for x in line]),2) - loc_key)
-        return horse_output
-
-class horse_gui(tk.Frame):
+# this defines the UI for the cipher
+# when I'm done with it you should be able to copy and paste it without a ton of reconfiguring
+class BLAKE2_gui(tk.Frame):
 
     def __init__(self, parent, controller):
         # class variables that will be used later
         self.data = bytearray()
-        self.key = ""
         self.usefileinput = False
 
         self.input = ""
@@ -56,12 +25,6 @@ class horse_gui(tk.Frame):
         self.controller = controller
         # your stuff goes here
         self.titlelabel = tk.Label(self, text=name, font=controller.title_font)
-
-        self.entry_text = tk.StringVar()
-        self.keybox = tk.Entry(self, textvariable = self.entry_text)
-        self.entry_text.set("")
-        self.keylabel = tk.Label(self, text="Key")
-
         self.descriptionlabel = tk.Label(self, text=description, justify="left", borderwidth=3, relief="sunken", pady=3)
 
         self.inputbox = tk.Text(self, height=5, width=100)
@@ -69,16 +32,10 @@ class horse_gui(tk.Frame):
         self.outputbox = tk.Text(self, height=5, width=100)
         self.outputlabel = tk.Label(self, text="Output")
 
-        self.horsie = Image.open('./gelding-bay-coat.jpeg').resize((100, 100))
-        self.horse_picture = ImageTk.PhotoImage(self.horsie)
-        self.icon_size = tk.Label(self, image = self.horse_picture)
-        self.icon_size.grid(row = 0, column = 2)
-
         self.openbutton = tk.Button(self, text="Open", command=self.clickedOpen)
         self.savebutton = tk.Button(self, text="Save", command=self.clickedSave)
         self.clearbutton = tk.Button(self, text="Clear Fields", command=self.clickedClear)
         self.encryptbutton = tk.Button(self, text="Encrypt", command=self.clickedEncrypt)
-        self.decryptbutton = tk.Button(self, text="Decrypt", command=self.clickedDecrypt)
         # this uses a lambda because it has an argument
         # idk this is just what stackoverflow did
         self.backbutton = tk.Button(self, text="Back", command=lambda: controller.show_frame("StartPage"))
@@ -86,8 +43,6 @@ class horse_gui(tk.Frame):
         self.backbutton.grid(column=0, row=0)
         self.titlelabel.grid(column=1, row=0, columnspan=2)
 
-        self.keylabel.grid(column=0, row=1)
-        self.keybox.grid(column=1, row=1)
 
         self.descriptionlabel.grid(column=2, row=1, rowspan=2, pady=3, sticky='nsew')
 
@@ -101,9 +56,9 @@ class horse_gui(tk.Frame):
 
         self.clearbutton.grid(column=1, row=7, pady=5)
         self.encryptbutton.grid(column=2, row=7, pady=5)
-        self.decryptbutton.grid(column=2, row=8, pady=5)
 
     def clickedEncrypt(self):
+
         # converts an escape sequence entry (like "\x01\x02text\xff") to an array of bytes
         # we only need to update the input bytes if we're not using a file
         # since the file input code already updates it
@@ -118,53 +73,20 @@ class horse_gui(tk.Frame):
         else:
             data = self.input
 
-        
-        horser = horse()
-        horsetext = horser.horse_crypt(data)
-        self.entry_text.set(horser.get_key())
-        # ciphertext
 
-        self.output = horsetext
+        hash = BLAKE2b.new(digest_bits=512)
+        hash.update(data)
+        ciphertext = hash.hexdigest()
+
+        self.output = ciphertext
         # clear and write output to the display box
         # would normally display as "bytearray(stuff)" so the [12:-2] chops the extra stuff off
         self.outputbox.delete(1.0, tk.END)
-        self.outputbox.insert(1.0, str(self.output))
-        return
-
-    def clickedDecrypt(self):
-        if len(self.keybox.get()) <= 0:
-            messagebox.showerror(title="Key Error",
-                                 message="Key needs to be atleast 1 character long.")
-            return
-
-        # converts an escape sequence entry (like "\x01\x02text\xff") to an array of bytes
-        # we only need to update the input bytes if we're not using a file
-        # since the file input code already updates it
-        data = ''
-        if not self.usefileinput:
-            self.input = self.inputbox.get(1.0, tk.END)
-            data = self.input
-            data = data[:-1]
-            data = data.encode()
-            data = data.decode('unicode_escape').encode("raw_unicode_escape")
-        else:
-            data = self.input
-
-        key = self.keybox.get()
-        key = bytes(str(key), 'utf-8')
-        horser = horse()
-        horser.set_key(key.decode())
-        self.output = horser.horse_decrypt(data)
-
-        # clear and write output to the display box
-        # would normally display as "bytearray(stuff)" so the [12:-2] chops the extra stuff off
-        self.outputbox.delete(1.0, tk.END)
-        self.outputbox.insert(1.0, str(self.output))
+        self.outputbox.insert(1.0, str(self.output)[2:-1])
         return
 
     def clickedClear(self):
         # TODO: clear key/input/output
-        self.keybox.delete(0, tk.END)
         # the text box widgets have a slightly different clearing method than the one-line entry widgets
         # gotta re-enable it first because disabled state applies to everything, not just user typing
         self.inputbox.config(state="normal")
