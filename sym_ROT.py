@@ -71,7 +71,7 @@ class ROT_gui(tk.Frame):
 
     def clickedEncrypt(self):
         try:
-            self.key = int(self.keybox.get())
+            self.key = int(self.keybox.get()) % 26
         except:
             messagebox.showerror(title="Key Error",
                                  message="Key needs to be an integer.")
@@ -91,10 +91,25 @@ class ROT_gui(tk.Frame):
         else:
             data = self.input
         data = list(data)
-        
 
         for i in range(len(data)):
-            data[i] = data[i] + self.key
+            if data[i] >= 65 and data[i] <= 90:
+                data[i] += self.key
+
+                if data[i] > 90:
+                    data[i] -= 26
+
+                elif data[i] < 65:
+                    data[i] += 26
+
+            elif data[i] >= 97 and data[i] <= 122:
+                data[i] += self.key
+
+                if data[i] > 122:
+                    data[i] -= 26
+
+                elif data[i] < 97:
+                    data[i] += 26
 
         data = bytes(data)
         self.output = data
@@ -107,7 +122,7 @@ class ROT_gui(tk.Frame):
 
     def clickedDecrypt(self):
         try:
-            self.key = int(self.keybox.get())
+            self.key = int(self.keybox.get()) % 26
         except:
             messagebox.showerror(title="Key Error",
                                  message="Key needs to be an integer.")
@@ -130,7 +145,23 @@ class ROT_gui(tk.Frame):
         self.key = int(self.keybox.get())
 
         for i in range(len(data)):
-            data[i] = data[i] - self.key
+            if data[i] >= 65 and data[i] <= 90:
+                data[i] -= self.key
+
+                if data[i] > 90:
+                    data[i] -= 26
+
+                elif data[i] < 65:
+                    data[i] += 26
+
+            elif data[i] >= 97 and data[i] <= 122:
+                data[i] -= self.key
+
+                if data[i] > 122:
+                    data[i] -= 26
+
+                elif data[i] < 97:
+                    data[i] += 26
 
         data = bytes(data)
         self.output = data
