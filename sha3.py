@@ -82,7 +82,7 @@ class SHA3_gui(tk.Frame):
         # clear and write output to the display box
         # would normally display as "bytearray(stuff)" so the [12:-2] chops the extra stuff off
         self.outputbox.delete(1.0, tk.END)
-        self.outputbox.insert(1.0, str(self.output)[2:-1])
+        self.outputbox.insert(1.0, str(self.output))
         return
 
     def clickedClear(self):
