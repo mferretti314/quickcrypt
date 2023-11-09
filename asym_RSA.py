@@ -2,6 +2,8 @@ import tkinter as tk
 import codecs
 from tkinter import messagebox
 from tkinter import filedialog
+from Crypto.PublicKey import RSA
+
 
 name = "RSA"
 
@@ -34,8 +36,8 @@ class RSA_gui(tk.Frame):
         # your stuff goes here
         self.titlelabel = tk.Label(self, text=name, font=controller.title_font)
 
-        self.openpubbutton = tk.Button(self, text="Open Public Key\n(public.pem)", height=2, width=13)
-        self.openprivbutton = tk.Button(self, text="Open Private Key\n(private.pem)", height=2, width=13)
+        self.openpubbutton = tk.Button(self, text="Open Public Key\n(public.pem)", height=2, width=13, command=self.clickedLoadPub)
+        self.openprivbutton = tk.Button(self, text="Open Private Key\n(private.pem)", height=2, width=13, command=self.clickedLoadPriv)
         self.genkeysbutton = tk.Button(self, text="Generate Keys", command = self.clickedGenerate, height=2, width=13)
 
         self.keyinfobox = tk.Label(self, text="No keys loaded. Cannot encrypt or decrypt.", justify="left", borderwidth=3, relief="sunken", pady=3)
@@ -79,7 +81,28 @@ class RSA_gui(tk.Frame):
         self.decryptbutton.grid(column=2, row=7, pady=3)
         self.encryptbutton.grid(column=3, row=7, pady=3)
     
+    def clickedLoadPub(self):
+        return
+    
+    def clickedLoadPriv(self):
+        return
+
     def clickedGenerate(self):
+        key = RSA.generate(2048)
+        private_key = key.export_key()
+        # get file write location
+        file = filedialog.asksaveasfile(mode='wb', initialfile="private.pem", title="Save private key", filetypes=(("Key file","*.pem*")))
+        file.write(private_key)
+        file.close()
+
+        public_key = key.public_key().export_key()
+        file = filedialog.asksaveasfile(mode='wb', initialfile="public.pem", title="Save public key", filetypes=(("Key file","*.pem*")))
+        file.write(public_key)
+        file.close()
+
+        self.privatekey = private_key
+        self.publickey = public_key
+
         return
     
     def clickedEncrypt(self):
