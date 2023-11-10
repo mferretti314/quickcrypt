@@ -1,18 +1,18 @@
 import tkinter as tk
-import codecs
+import codecs, binascii
 from tkinter import messagebox
 from tkinter import filedialog
 from Crypto.PublicKey import RSA
+from Crypto.Cipher import PKCS1_OAEP
 
 
 name = "RSA"
 
-description = """A high-security asymmetric cipher. Uses different keys to encrypt and decrypt.
-Uses a public key based on the product of two secret prime numbers to encode data.
-Public keys can be sent over unsecured lines of communication.
-Messages can be encrypted by anyone who knows the recipient's public key. 
-Messages can only be decrypted with the private key- the secret prime numbers.
-Fairly slow; usually used to send a key for a faster symmetric cipher like AES."""
+description = """A high-security asymmetric cipher. Uses different keys to encrypt and decrypt messages.
+Relies on a linked pair of keys- public and private. A message is encrypted using the 
+recipient's public key, and decrypted using their private key. Public keys can be sent 
+over unsecure channels, but private keys should never be shared. The algorithm is slow
+and limited to 190 characters. It's usually used to exchange a key for another cipher."""
 
 
 # this defines the UI for the cipher
@@ -82,49 +82,97 @@ class RSA_gui(tk.Frame):
         self.encryptbutton.grid(column=3, row=7, pady=3)
     
     def clickedLoadPub(self):
+        filename = filedialog.askopenfilename(
+            filetypes = (("Public key","*.pem*"),("all files", "*.*"))
+        )
+        if filename == None:
+            return
+        file = open(filename, 'rb')
+        self.publickey = RSA.import_key(file.read())
+        file.close()
+
+        if self.privatekey is not None:
+            self.keyinfobox.config(text="Public and private keys loaded. Ready to encrypt or decrypt.")
+        elif self.publickey is not None:
+            self.keyinfobox.config(text="Public key loaded. Ready to encrypt.")
+        else:
+            self.keyinfobox.config(text="Error loading public key.")
         return
     
     def clickedLoadPriv(self):
+        filename = filedialog.askopenfilename(
+            filetypes = (("Private key","*.pem*"),("all files", "*.*"))
+        )
+        if filename == None:
+            return
+        file = open(filename, 'rb')
+        self.privatekey = RSA.import_key(file.read())
+        file.close()
+
+        if self.publickey is not None:
+            self.keyinfobox.config(text="Public and private keys loaded. Ready to encrypt or decrypt.")
+        else:
+            self.keyinfobox.config(text="Private key loaded. Ready to decrypt.")
         return
 
     def clickedGenerate(self):
         key = RSA.generate(2048)
         private_key = key.export_key()
         # get file write location
-        file = filedialog.asksaveasfile(mode='wb', initialfile="private.pem", title="Save private key", filetypes=(("Key file","*.pem*")))
+        file = filedialog.asksaveasfile(mode='wb', initialfile="private.pem", title="Save private key", filetypes=(("Key files","*.pem*"),("all files", "*.*")))
         file.write(private_key)
         file.close()
 
         public_key = key.public_key().export_key()
-        file = filedialog.asksaveasfile(mode='wb', initialfile="public.pem", title="Save public key", filetypes=(("Key file","*.pem*")))
+        file = filedialog.asksaveasfile(mode='wb', initialfile="public.pem", title="Save public key", filetypes=(("Key files","*.pem*"),("all files", "*.*")))
         file.write(public_key)
         file.close()
 
         self.privatekey = private_key
         self.publickey = public_key
+        self.keyinfobox.config(text="Public and private keys loaded. Ready to encrypt or decrypt.")
 
         return
     
     def clickedEncrypt(self):
-        # checking the text -> int conversion for key/feedback
-        #messagebox.showerror(title="Key Error", message="Could not convert " + self.keybox.get() + " to hexadecimal. Please use a format like 0x1234ABCD.")
-        #messagebox.showerror(title="Feedback Error", message="Could not convert " + self.feedbackbox.get() + " to hexadecimal. Please use a format like 0x1234ABCD.")
-        
-        # converts an escape sequence entry (like "\x01\x02text\xff") to an array of bytes
-        # we only need to update the input bytes if we're not using a file
-        # since the file input code already updates it
+        if self.publickey is None:
+            messagebox.showerror(title="Key Error", message="No public key loaded.")
+
         if not self.usefileinput:
             self.input = self.inputbox.get(1.0, tk.END)
             self.input = bytearray(codecs.escape_decode(self.input)[0])
 
-        #self.output = encrypt(self.input, self.key, self.feedback)
-        # clear and write output to the display box
-        # would normally display as "bytearray(stuff)" so the [12:-2] chops the extra stuff off
+        
+        cipher_rsa = PKCS1_OAEP.new(self.publickey)
+        
+        self.output = cipher_rsa.encrypt(self.input)
         self.outputbox.delete(1.0, tk.END)
-        self.outputbox.insert(1.0, str(self.output)[12:-2])
+        self.outputbox.insert(1.0, str(self.output)[2:-1])
+
         return
     
     def clickedDecrypt(self):
+        if self.privatekey is None:
+            messagebox.showerror(title="Key Error", message="No private key loaded.")
+
+        if not self.usefileinput:
+            self.input = self.inputbox.get(1.0, tk.END)
+            # try decoding hex to bytes first
+            #try:
+                #print(self.input)
+                #s = binascii.unhexlify(self.input.strip())
+                #self.input = s
+            #except:
+                # otherwise just do the normal conversion
+                #print("couldn't convert input from hex to bytes")
+            self.input = bytearray(codecs.escape_decode(self.input.strip())[0])
+
+
+        print(len(self.input))
+        cipher_rsa = PKCS1_OAEP.new(self.privatekey)
+        self.output = cipher_rsa.decrypt(self.input)
+        self.outputbox.delete(1.0, tk.END)
+        self.outputbox.insert(1.0, str(self.output)[2:-1])
         return
     
     def clickedClear(self):
@@ -137,7 +185,9 @@ class RSA_gui(tk.Frame):
         self.inputbox.delete(1.0, tk.END)
         self.outputbox.delete(1.0, tk.END)
         self.usefileinput = False
-        
+        self.publickey = None
+        self.privatekey = None
+        self.keyinfobox.config(text="No keys loaded. Cannot encrypt or decrypt.")
         return
     
     def clickedOpen(self):

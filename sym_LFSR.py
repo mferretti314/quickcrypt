@@ -119,7 +119,7 @@ class LFSR_gui(tk.Frame):
         # since the file input code already updates it
         if not self.usefileinput:
             self.input = self.inputbox.get(1.0, tk.END)
-            self.input = bytearray(codecs.escape_decode(self.input)[0])
+            self.input = bytearray(codecs.escape_decode(self.input.strip())[0])
 
         self.output = crypt(self.input, self.key, self.feedback)
         # clear and write output to the display box
