@@ -6,7 +6,7 @@ from Crypto.Hash import BLAKE2b
 
 name = "BLAKE2b"
 
-description = """A high-performance 512-bit hash function. Turns the input into a distinct string of hex bytes.
+description = """A high-performance 512-bit hash function. Turns user input into a distinct string of hex bytes.
 Changing one bit of the input has a 50% chance of changing each output bit. BLAKE2b is
 very secure and is suitable for cryptographic use."""
 

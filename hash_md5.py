@@ -6,7 +6,7 @@ from Crypto.Hash import MD5
 
 name = "MD5"
 
-description = """A widely-used 128-bit hash function developed in 1991. Turns the input 
+description = """A widely-used 128-bit hash function developed in 1991. Turns user input 
 into a distinct string of hex bytes. Suitable for non-cryptographic uses, 
 but has extensive vulnerabilities that make it insecure if used for cryptography."""
 
