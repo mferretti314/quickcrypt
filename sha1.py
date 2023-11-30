@@ -37,7 +37,7 @@ class SHA1_gui(tk.Frame):
         self.openbutton = tk.Button(self, text="Open", command=self.clickedOpen)
         self.savebutton = tk.Button(self, text="Save", command=self.clickedSave)
         self.clearbutton = tk.Button(self, text="Clear Fields", command=self.clickedClear)
-        self.encryptbutton = tk.Button(self, text="Encrypt", command=self.clickedEncrypt)
+        self.encryptbutton = tk.Button(self, text="Hash", command=self.clickedEncrypt)
         # this uses a lambda because it has an argument
         # idk this is just what stackoverflow did
         self.backbutton = tk.Button(self, text="Back", command=lambda: controller.show_frame("StartPage"))

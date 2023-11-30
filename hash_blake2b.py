@@ -6,7 +6,9 @@ from Crypto.Hash import BLAKE2b
 
 name = "BLAKE2b"
 
-description = """Le Blake2B"""
+description = """A high-performance 512-bit hash function. Turns user input into a distinct string of hex bytes.
+Changing one bit of the input has a 50% chance of changing each output bit. BLAKE2b is
+very secure and is suitable for cryptographic use."""
 
 # this defines the UI for the cipher
 # when I'm done with it you should be able to copy and paste it without a ton of reconfiguring
@@ -35,7 +37,7 @@ class BLAKE2_gui(tk.Frame):
         self.openbutton = tk.Button(self, text="Open", command=self.clickedOpen)
         self.savebutton = tk.Button(self, text="Save", command=self.clickedSave)
         self.clearbutton = tk.Button(self, text="Clear Fields", command=self.clickedClear)
-        self.encryptbutton = tk.Button(self, text="Encrypt", command=self.clickedEncrypt)
+        self.encryptbutton = tk.Button(self, text="Hash", command=self.clickedEncrypt)
         # this uses a lambda because it has an argument
         # idk this is just what stackoverflow did
         self.backbutton = tk.Button(self, text="Back", command=lambda: controller.show_frame("StartPage"))

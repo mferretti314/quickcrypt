@@ -1,159 +1,111 @@
+
 import tkinter as tk
-import codecs
-from tkinter import messagebox
-from tkinter import filedialog
+from tkinter import messagebox, filedialog
 from Crypto.Cipher import DES
+from Crypto.Util.Padding import pad, unpad
+from Crypto.Random import get_random_bytes
+import base64
 
 name = "DES"
 
-description = """The Data Encryption Standard (DES) is a symmetric block cipher chosen by the U.S. 
-government to protect classified information. It is effectively unbreakable, and uses a key length of 
-128, 196, or 256 bits. "Nonce" is automatically-generated random bytes that are used for decryption.
-Decrypting an DES-encrypted message requires both the key and the nonce value. The key must
-be sent securely, but the nonce can be sent over an unsecure channel along with the encrypted text."""
+description = """TThe Data Encryption Standard (DES) is a symmetric-key cipher that encrypts digital data 
+in 64-bit blocks using a 56-bit key. It executes complex transformations over 16 rounds, making it initially 
+secure but later vulnerable to brute-force attacks due to its short key length. Although now superseded by more
+advanced algorithms, DES was crucial in the development of cryptographic methods."""
 
-# this defines the UI for the cipher
-# when I'm done with it you should be able to copy and paste it without a ton of reconfiguring
+class DES_Encryption:
+    def __init__(self):
+        self.key = None
+
+    def generate_key(self):
+        self.key = get_random_bytes(8)  # DES uses an 8-byte key
+        return base64.b64encode(self.key).decode('utf-8')
+
+    def encrypt(self, plaintext):
+        cipher = DES.new(self.key, DES.MODE_ECB)
+        padded_text = pad(plaintext.encode(), DES.block_size)
+        encrypted = cipher.encrypt(padded_text)
+        return base64.b64encode(encrypted).decode('utf-8')
+
+    def decrypt(self, ciphertext):
+        cipher = DES.new(self.key, DES.MODE_ECB)
+        decoded_text = base64.b64decode(ciphertext)
+        decrypted = unpad(cipher.decrypt(decoded_text), DES.block_size)
+        return decrypted.decode('utf-8')
+
+    def set_key(self, key):
+        self.key = base64.b64decode(key)
+
+# GUI class for DES
 class DES_gui(tk.Frame):
-
     def __init__(self, parent, controller):
-        # class variables that will be used later
-        self.data = bytearray()
-        self.key = ""
-        self.nonce = ""
-        self.usefileinput = False
-
-        self.input = ""
-        self.output = ""
-
-        # gui setup- these first two lines are required
         tk.Frame.__init__(self, parent)
         self.controller = controller
-        # your stuff goes here
+        self.des = DES_Encryption()
+        
+        # GUI elements for DES encryption and decryption
         self.titlelabel = tk.Label(self, text=name, font=controller.title_font)
-
         self.keybox = tk.Entry(self)
         self.keylabel = tk.Label(self, text="Key")
-
-        #Nonce neeeded for DES Decryption
-        self.noncebox = tk.Entry(self)
-        self.noncelabel = tk.Label(self, text="Nonce")
-
         self.descriptionlabel = tk.Label(self, text=description, justify="left", borderwidth=3, relief="sunken", pady=3)
-
         self.inputbox = tk.Text(self, height=5, width=100)
         self.inputlabel = tk.Label(self, text="Input")
+        self.encryptbutton = tk.Button(self, text="Encrypt", command=self.encrypt_message)
+        self.decryptbutton = tk.Button(self, text="Decrypt", command=self.decrypt_message)
         self.outputbox = tk.Text(self, height=5, width=100)
         self.outputlabel = tk.Label(self, text="Output")
-
         self.openbutton = tk.Button(self, text="Open", command=self.clickedOpen)
         self.savebutton = tk.Button(self, text="Save", command=self.clickedSave)
         self.clearbutton = tk.Button(self, text="Clear Fields", command=self.clickedClear)
-        self.encryptbutton = tk.Button(self, text="Encrypt", command=self.clickedEncrypt)
-        self.decryptbutton = tk.Button(self, text="Decrypt", command=self.clickedDecrypt)
-        # this uses a lambda because it has an argument
-        # idk this is just what stackoverflow did
+
         self.backbutton = tk.Button(self, text="Back", command=lambda: controller.show_frame("StartPage"))
 
+
+        # Layout the widgets
         self.backbutton.grid(column=0, row=0)
         self.titlelabel.grid(column=1, row=0, columnspan=2)
-
         self.keylabel.grid(column=0, row=1)
         self.keybox.grid(column=1, row=1)
-        self.noncelabel.grid(column=0, row=2)
-        self.noncebox.grid(column=1, row=2)
-
         self.descriptionlabel.grid(column=2, row=1, rowspan=2, pady=3, sticky='nsew')
-
-        self.openbutton.grid(column=0, row=4)
         self.inputbox.grid(column=1, row=3, columnspan=2, rowspan=2, sticky='nsew', padx=3, pady=3)
         self.inputlabel.grid(column=0, row=3)
-
-        self.savebutton.grid(column=0, row=6)
         self.outputbox.grid(column=1, row=5, columnspan=2, rowspan=2, sticky='nsew', padx=3, pady=3)
         self.outputlabel.grid(column=0, row=5)
-
+        self.openbutton.grid(column=0, row=4)
+        self.savebutton.grid(column=0, row=6)
         self.clearbutton.grid(column=1, row=7, pady=5)
         self.encryptbutton.grid(column=2, row=7, pady=5)
         self.decryptbutton.grid(column=2, row=8, pady=5)
 
-    def clickedEncrypt(self):
-        if len(self.keybox.get()) != 16 and len(self.keybox.get()) != 24 and len(self.keybox.get()) != 32:
-            messagebox.showerror(title="Key Error",
-                                 message="Key needs to be either 16, 24, or 32 characters long.")
-            return
+    def encrypt_message(self):
+        try:
+            key = self.keybox.get()
+            if len(key) != 12:
+                raise ValueError("Key must be 8 bytes long (12 characters in Base64)")
+            self.des.set_key(key)
+            plaintext = self.inputbox.get("1.0", 'end-1c')
+            encrypted_message = self.des.encrypt(plaintext)
+            self.outputbox.delete("1.0", tk.END)
+            self.outputbox.insert(tk.END, encrypted_message)
+        except Exception as e:
+            messagebox.showerror("Encryption Error", str(e))
 
-        # converts an escape sequence entry (like "\x01\x02text\xff") to an array of bytes
-        # we only need to update the input bytes if we're not using a file
-        # since the file input code already updates it
-        data = ''
-        if not self.usefileinput:
-            self.input = self.inputbox.get(1.0, tk.END)
-
-            data = self.input
-            data = data[:-1]
-            data = data.encode()
-            data = data.decode('unicode_escape').encode("raw_unicode_escape")
-        else:
-            data = self.input
-
-        key = key[:8]
-        key = key[:8]
-
-        cipher = DES.new(key, DES.MODE_EAX)
-        nonce = cipher.nonce
-        ciphertext, tag = cipher.encrypt_and_digest(data)
-
-        self.nonce = nonce
-        self.output = ciphertext
-        # clear and write output to the display box
-        # would normally display as "bytearray(stuff)" so the [12:-2] chops the extra stuff off
-        self.noncebox.delete(0, tk.END)
-        self.noncebox.insert(0, str(self.nonce)[2:-1])
-        self.outputbox.delete(1.0, tk.END)
-        self.outputbox.insert(1.0, str(self.output)[2:-1])
-        return
-
-    def clickedDecrypt(self):
-        if len(self.keybox.get()) != 16 and len(self.keybox.get()) != 24 and len(self.keybox.get()) != 32:
-            messagebox.showerror(title="Key Error",
-                                 message="Key needs to be either 16, 24, or 32 characters long.")
-            return
-
-        # converts an escape sequence entry (like "\x01\x02text\xff") to an array of bytes
-        # we only need to update the input bytes if we're not using a file
-        # since the file input code already updates it
-        data = ''
-        if not self.usefileinput:
-            self.input = self.inputbox.get(1.0, tk.END)
-            data = self.input
-            data = data[:-1]
-            data = data.encode()
-            data = data.decode('unicode_escape').encode("raw_unicode_escape")
-        else:
-            data = self.input
-
-        key = key[:8]
-        key = key[:8]
-
-        nonce = self.noncebox.get()
-        nonce = nonce.encode()
-        nonce = nonce.decode('unicode_escape').encode("raw_unicode_escape")
-
-
-        cipher = DES.new(key, DES.MODE_EAX, nonce)
-        self.output = cipher.decrypt(data)
-
-        # clear and write output to the display box
-        # would normally display as "bytearray(stuff)" so the [12:-2] chops the extra stuff off
-        self.outputbox.delete(1.0, tk.END)
-        self.outputbox.insert(1.0, str(self.output)[2:-1])
-        return
+    def decrypt_message(self):
+        try:
+            key = self.keybox.get()
+            if len(key) != 12:
+                raise ValueError("Key must be 8 bytes long (12 characters in Base64)")
+            self.des.set_key(key)
+            ciphertext = self.inputbox.get("1.0", 'end-1c')
+            decrypted_message = self.des.decrypt(ciphertext)
+            self.outputbox.delete("1.0", tk.END)
+            self.outputbox.insert(tk.END, decrypted_message)
+        except Exception as e:
+            messagebox.showerror("Decryption Error", str(e))
 
     def clickedClear(self):
         # TODO: clear key/input/output
         self.keybox.delete(0, tk.END)
-        self.noncebox.delete(0, tk.END)
         # the text box widgets have a slightly different clearing method than the one-line entry widgets
         # gotta re-enable it first because disabled state applies to everything, not just user typing
         self.inputbox.config(state="normal")
@@ -184,3 +136,4 @@ class DES_gui(tk.Frame):
         file.write(self.output)
         file.close()
         return
+
