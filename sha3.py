@@ -2,11 +2,14 @@ import tkinter as tk
 import codecs
 from tkinter import messagebox
 from tkinter import filedialog
-from Crypto.Hash import SHA1
+from Crypto.Hash import SHA3_256
 
 name = "SHA 3"
 
-description = """Le SHA 3"""
+description = """SHA-3 is a subset of the broader cryptographic primitive family Keccak. 
+Keccak is based on a novel approach called sponge construction that can use 256-bit. It is used, but has not 
+replaced SHA-2, despite being more secure. You can encrypt by placing your text into the input box 
+and retrieving the output."""
 
 # this defines the UI for the cipher
 # when I'm done with it you should be able to copy and paste it without a ton of reconfiguring
@@ -74,7 +77,7 @@ class SHA3_gui(tk.Frame):
             data = self.input
 
 
-        hash = SHA1.new()
+        hash = SHA3_256.new()
         hash.update(data)
         ciphertext = hash.hexdigest()
 
