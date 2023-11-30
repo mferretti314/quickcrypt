@@ -6,7 +6,9 @@ from Crypto.Hash import MD5
 
 name = "MD5"
 
-description = """Le MD5"""
+description = """A widely-used 128-bit hash function developed in 1991. Turns the input 
+into a distinct string of hex bytes. Suitable for non-cryptographic uses, 
+but has extensive vulnerabilities that make it insecure if used for cryptography."""
 
 # this defines the UI for the cipher
 # when I'm done with it you should be able to copy and paste it without a ton of reconfiguring
@@ -35,7 +37,7 @@ class MD5_gui(tk.Frame):
         self.openbutton = tk.Button(self, text="Open", command=self.clickedOpen)
         self.savebutton = tk.Button(self, text="Save", command=self.clickedSave)
         self.clearbutton = tk.Button(self, text="Clear Fields", command=self.clickedClear)
-        self.encryptbutton = tk.Button(self, text="Encrypt", command=self.clickedEncrypt)
+        self.encryptbutton = tk.Button(self, text="Hash", command=self.clickedEncrypt)
         # this uses a lambda because it has an argument
         # idk this is just what stackoverflow did
         self.backbutton = tk.Button(self, text="Back", command=lambda: controller.show_frame("StartPage"))
