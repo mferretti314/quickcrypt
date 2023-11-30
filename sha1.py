@@ -6,7 +6,9 @@ from Crypto.Hash import SHA1
 
 name = "SHA 1"
 
-description = """Le SHA 1"""
+description = """SHA-1 is a hash function that produces a 160-bit hash value message. The algorithm 
+has been cryptographically broken, but still is used widely. You can encrypt/decrypt by placing
+your text into the input box and retrieving the output."""
 
 # this defines the UI for the cipher
 # when I'm done with it you should be able to copy and paste it without a ton of reconfiguring
