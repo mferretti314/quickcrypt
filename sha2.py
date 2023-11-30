@@ -2,11 +2,13 @@ import tkinter as tk
 import codecs
 from tkinter import messagebox
 from tkinter import filedialog
-from Crypto.Hash import SHA3_256
+from Crypto.Hash import SHA256
 
 name = "SHA 2"
 
-description = """Le SHA 256"""
+description = """SHA-2 is a hash function that produces a 256-bit hash value message. Using  
+eight 32-bit words to attain the number 256, it is widely used and is much more safe. 
+You can encrypt by placing your text into the input box and retrieving the output."""
 
 # this defines the UI for the cipher
 # when I'm done with it you should be able to copy and paste it without a ton of reconfiguring
@@ -74,7 +76,7 @@ class SHA2_gui(tk.Frame):
             data = self.input
 
 
-        hash = SHA3_256.new()
+        hash = SHA256.new()
         hash.update(data)
         ciphertext = hash.hexdigest()
 
