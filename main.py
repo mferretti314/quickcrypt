@@ -11,7 +11,8 @@ class QuickCrypt(tk.Tk):
     def __init__(self, *args, **kwargs):
         tk.Tk.__init__(self, *args, **kwargs)
         self.title_font = tkfont.Font(family="Calibri", size=18, weight="bold", slant="roman")
-
+        self.title("Quickcrypt")
+        self.iconbitmap("horse.ico")
         container = tk.Frame(self)
         container.pack(side="top", fill="both", expand=True)
         container.grid_rowconfigure(0, weight=1)
